@@ -370,7 +370,9 @@ this.draw = function(){
                 {
                   //console.log("SOUP");
                   //ufoArray.splice(i, 1);
-                  score += 1;
+                  if(frameCount - oldFrameCount>10){
+                    score += 1;
+                  }
                   sizeRange = ufoSize * random(0.8, 1.5);
                   ufoArray[i].x = random(0,canvas.width);
                   ufoArray[i].y = random(0, canvas.height - 30);
