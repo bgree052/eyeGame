@@ -93,17 +93,17 @@ function draw() {
 
   if(stageSetting == 2){
 
-    // if(vidOn == true && stop == false){
-    //   oldFrameCount = frameCount;
-    //   console.log(oldFrameCount = frameCount);
-    //   stop = true;
-    // }
-    //
-    // if(vidOn == true && frameCount - oldFrameCount == 600){
-    //     console.log("ON!");
-    //     tracker.init(pModel);
-    //     tracker.start(video.elt);
-    // }
+    if(vidOn == true && stop == false){
+      oldFrameCount = frameCount;
+      console.log(oldFrameCount = frameCount);
+      stop = true;
+    }
+
+    if(vidOn == true && frameCount - oldFrameCount == 600){
+        console.log("ON!");
+        tracker.init(pModel);
+        tracker.start(video.elt);
+    }
 
     if(score>50){
       stageSetting=3
@@ -172,7 +172,9 @@ function draw() {
         ufoArray[i].y < facePoint.y +50)
       {
         console.log("HIT");
-        score -=10;
+        if(score>0){
+          score -=10;
+        }
       }
     }
     var w = video.width/8;
