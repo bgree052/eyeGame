@@ -105,6 +105,10 @@ function draw() {
     //     tracker.start(video.elt);
     // }
 
+    if(score>50){
+      stageSetting=3
+    }
+
     background(255);
 
     image(video, 0, 0, canvas.width, canvas.height);
@@ -232,7 +236,19 @@ function draw() {
   }
 
   if(stageSetting == 3){
+    background(255);
+    textSize(30);
+    fill(0);
+    textStyle(BOLD);
+    textAlign(CENTER);
+    text("GAME OVER", canvas.width/2, canvas.height/4);
 
+    fill(startButton.fill);
+    rectMode(CENTER);
+    rect(startButton.x, startButton.y, startButton.width, startButton.height);
+    fill(255);
+    textSize(25);
+    text("REPLAY", startButton.x, startButton.y+13);
   }
 }
 //end of draw
@@ -248,6 +264,17 @@ function mousePressed(){
       // startButton.fill = 100;
       stageSetting = 2;
     }
+    if(stageSetting == 3 &&
+      mouseX>startButton.x - startButton.width/2 &&
+      mouseX<startButton.x + startButton.width/2 &&
+      mouseY>startButton.y - startButton.height/2 &&
+      mouseY<startButton.y + startButton.width/2)
+      {
+        //console.log("PRESSED");
+        // startButton.fill = 100;
+        score=0;
+        stageSetting = 2;
+      }
 }
 
 function drawUfo(_x, _y, _width, _height) {
