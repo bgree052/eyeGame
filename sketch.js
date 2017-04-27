@@ -1,7 +1,18 @@
 // CURRENT IDEA IS TO HAVE A CAMERA GAME, HANDS KNOCK AWAY ENEMIES
 // ADD POINT TRACKING INSTEAD OF FACE TRACKING
 
+var stageSetting = 1;
 var score = 0;
+var oldFrameCount = 999909;
+var stop = false;
+
+var startButton = {
+  x : 0,
+  y : 0,
+  width : 200,
+  height : 75,
+  fill : 0
+}
 
 var video;
 var vidOn = false;
@@ -38,6 +49,9 @@ function setup() {
   // if(Index == 'undefined'){
   //   Index = 1;
   // }
+  startButton.x = canvas.width/2;
+  startButton.y = canvas.height/2;
+
   video = createCapture(VIDEO);
   video.hide();
   grid = new Grid(canvas.width, canvas.width);
@@ -60,119 +74,181 @@ function setup() {
 }
 
 function draw() {
-  background(255);
 
-  image(video, 0, 0, canvas.width, canvas.height);
-  video.loadPixels();
-  var positions = tracker.getCurrentPosition();
+  if(stageSetting == 1){
+    background(255);
+    textSize(30);
+    fill(0);
+    textStyle(BOLD);
+    textAlign(CENTER);
+    text("INVADERS OF YOUR BRAIN", canvas.width/2, canvas.height/4);
 
-  noFill();
-  stroke(255);
-  beginShape();
-  for (var i=0; i<positions.length; i++) {
-    vertex(positions[i][0], positions[i][1]);
-  }
-  endShape();
-
-  noStroke();
-  for (var i=0; i<positions.length; i++) {
-    fill(map(i, 0, positions.length, 0, 360), 50, 100);
-    // ellipse(positions[i][0], positions[i][1], 4, 4);
-    // text(i, positions[i][0], positions[i][1]);
-    text("22", positions[22][0], positions[22][1]);
-    text("18", positions[18][0], positions[18][1]);
+    fill(startButton.fill);
+    rectMode(CENTER);
+    rect(startButton.x, startButton.y, startButton.width, startButton.height);
+    fill(255);
+    textSize(25);
+    text("PLAY", startButton.x, startButton.y+13);
   }
 
-  if(positions.length > 0) {
-    var mouthLeft = createVector(positions[44][0], positions[44][1]);
-    var mouthRight = createVector(positions[50][0], positions[50][1]);
-    var smile = mouthLeft.dist(mouthRight);
-    // rect(20, 20, smile * 3, 20);
+  if(stageSetting == 2){
+
+    // if(vidOn == true && stop == false){
+    //   oldFrameCount = frameCount;
+    //   console.log(oldFrameCount = frameCount);
+    //   stop = true;
+    // }
+    //
+    // if(vidOn == true && frameCount - oldFrameCount == 600){
+    //     console.log("ON!");
+    //     tracker.init(pModel);
+    //     tracker.start(video.elt);
+    // }
+
+    background(255);
+
+    image(video, 0, 0, canvas.width, canvas.height);
+    video.loadPixels();
+    var positions = tracker.getCurrentPosition();
+
+    noFill();
+    stroke(255);
+    beginShape();
+    for (var i=0; i<positions.length; i++) {
+      vertex(positions[i][0], positions[i][1]);
+    }
+    endShape();
+
+    noStroke();
+    for (var i=0; i<positions.length; i++) {
+      fill(map(i, 0, positions.length, 0, 360), 50, 100);
+      // ellipse(positions[i][0], positions[i][1], 4, 4);
+      // text(i, positions[i][0], positions[i][1]);
+      text("22", positions[22][0], positions[22][1]);
+      text("18", positions[18][0], positions[18][1]);
     }
 
-    if (positions[18]) {
-      //console.log("X: "+positions[18][0]);
-      //console.log("Y: "+positions[18][1]);
-      facePoint.x = positions[18][0];
-      facePoint.y = positions[18][1];
+    if(positions.length > 0) {
+      var mouthLeft = createVector(positions[44][0], positions[44][1]);
+      var mouthRight = createVector(positions[50][0], positions[50][1]);
+      var smile = mouthLeft.dist(mouthRight);
+      // rect(20, 20, smile * 3, 20);
+      }
+
+      if (positions[18]) {
+        //console.log("X: "+positions[18][0]);
+        //console.log("Y: "+positions[18][1]);
+        facePoint.x = positions[18][0];
+        facePoint.y = positions[18][1];
+      }
+
+      //facePoint = positions[18];
+      //ellipse(positions[18][0], height/2, 10,10);
+
+    if(counter == 0 || ufoArray.length == 0){
+      for(var i=0; i<5; i++){
+        sizeRange = ufoSize * random(0.8, 1.5);
+        ufoArray.push(drawUfo(random(0,canvas.width), random(0, canvas.height - 30), sizeRange*1.34, sizeRange));
+      }
+      counter +=1;
     }
 
-    //facePoint = positions[18];
-    //ellipse(positions[18][0], height/2, 10,10);
+    //console.log(ufoArray[0].startX);
+    //console.log("facePoint: " +facePoint.x);
 
-  if(counter == 0 || ufoArray.length == 0){
-    for(var i=0; i<5; i++){
-      sizeRange = ufoSize * random(0.8, 1.5);
-      ufoArray.push(drawUfo(random(0,canvas.width), random(0, canvas.height - 30), sizeRange*1.34, sizeRange));
+    if(vidOn == true){
+      moveUfos();
     }
-    counter +=1;
-  }
-
-  //console.log(ufoArray[0].startX);
-  //console.log("facePoint: " +facePoint.x);
-
-  moveUfos();
-
-  var w = video.width/8;
-  var h = video.height/8;
-
-  currFrame = createImage(w, h);
-  currFrame.copy(video, 0, 0, video.width, video.height, 0, 0, w, h);
-  currFrame.filter("gray");
-  currFrame.filter("blur", 1);
-  currFrame.loadPixels();
-
-  outFrame = createImage(w, h);
-  outFrame.copy(video, 0, 0, video.width, video.height, 0, 0, w, h);
-  outFrame.loadPixels();
-
-  //Prevents running the loop before prevFrame is defined as the loop uses prevFrame's pixels
-  if(typeof prevFrame !== 'undefined'){
-    prevFrame.loadPixels();
-
-    for(i=0; i < currFrame.width; i++){
-      for(j=0; j < currFrame.height; j++){
-
-        //this calculates the position of the red component
-        var index = (i + (j*currFrame.width))*4;
-
-        var r = currFrame.pixels[index];
-        var g = currFrame.pixels[index + 1];
-        var b = currFrame.pixels[index + 2];
-        var a = currFrame.pixels[index + 3];
-
-        //red value in the prevFrame image
-        var r2 = prevFrame.pixels[index];
-
-        //distance calculation between the red value in the currFrame and the prevFrame
-        //this is then used to detect movement
-        var d = abs(r - r2);
-
-        //this difference is then stored in a seperate image
-        outFrame.pixels[index] = outFrame.pixels[index+1] = outFrame.pixels[index+2] = d;
-        outFrame.pixels[index+3] = 255;
+    //console.log("1");
+    for (var i = 0; i < ufoArray.length; i++) {
+      //console.log("2");
+      if(ufoArray[i].x  > facePoint.x &&
+        ufoArray[i].x  < facePoint.x + 50 &&
+        ufoArray[i].y > facePoint.y &&
+        ufoArray[i].y < facePoint.y +50)
+      {
+        console.log("HIT");
+        score -=10;
       }
     }
+    var w = video.width/8;
+    var h = video.height/8;
+
+    currFrame = createImage(w, h);
+    currFrame.copy(video, 0, 0, video.width, video.height, 0, 0, w, h);
+    currFrame.filter("gray");
+    currFrame.filter("blur", 1);
+    currFrame.loadPixels();
+
+    outFrame = createImage(w, h);
+    outFrame.copy(video, 0, 0, video.width, video.height, 0, 0, w, h);
+    outFrame.loadPixels();
+
+    //Prevents running the loop before prevFrame is defined as the loop uses prevFrame's pixels
+    if(typeof prevFrame !== 'undefined'){
+      prevFrame.loadPixels();
+
+      for(i=0; i < currFrame.width; i++){
+        for(j=0; j < currFrame.height; j++){
+
+          //this calculates the position of the red component
+          var index = (i + (j*currFrame.width))*4;
+
+          var r = currFrame.pixels[index];
+          var g = currFrame.pixels[index + 1];
+          var b = currFrame.pixels[index + 2];
+          var a = currFrame.pixels[index + 3];
+
+          //red value in the prevFrame image
+          var r2 = prevFrame.pixels[index];
+
+          //distance calculation between the red value in the currFrame and the prevFrame
+          //this is then used to detect movement
+          var d = abs(r - r2);
+
+          //this difference is then stored in a seperate image
+          outFrame.pixels[index] = outFrame.pixels[index+1] = outFrame.pixels[index+2] = d;
+          outFrame.pixels[index+3] = 255;
+        }
+      }
+    }
+    //end of loop
+
+    outFrame.updatePixels();
+    outFrame.filter("threshold", threshold);
+
+    prevFrame = createImage(w, h);
+    prevFrame.copy(currFrame, 0, 0, currFrame.width, currFrame.height, 0, 0, currFrame.width, currFrame.height);
+
+    // image(currFrame, video.width, 0);
+    // image(outFrame, video.width, currFrame.height);
+
+    //updates the grid with the image that stores movement changes
+    grid.update(outFrame);
+
+    fill(0);
+    textSize(20);
+    text("Score: " + score, 100, 15)
   }
-  //end of loop
 
-  outFrame.updatePixels();
-  outFrame.filter("threshold", threshold);
+  if(stageSetting == 3){
 
-  prevFrame = createImage(w, h);
-  prevFrame.copy(currFrame, 0, 0, currFrame.width, currFrame.height, 0, 0, currFrame.width, currFrame.height);
-
-  // image(currFrame, video.width, 0);
-  // image(outFrame, video.width, currFrame.height);
-
-  //updates the grid with the image that stores movement changes
-  grid.update(outFrame);
-
-  fill(0);
-  textSize(20);
-  text("Score: " + score, 10, 10)
+  }
 }
 //end of draw
+
+function mousePressed(){
+  if(stageSetting == 1 &&
+    mouseX>startButton.x - startButton.width/2 &&
+    mouseX<startButton.x + startButton.width/2 &&
+    mouseY>startButton.y - startButton.height/2 &&
+    mouseY<startButton.y + startButton.width/2)
+    {
+      //console.log("PRESSED");
+      // startButton.fill = 100;
+      stageSetting = 2;
+    }
+}
 
 function drawUfo(_x, _y, _width, _height) {
   return{
