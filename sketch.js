@@ -111,7 +111,10 @@ function draw() {
 
     background(255);
 
-    image(video, 0, 0, canvas.width, canvas.height);
+    push();
+    scale(-1,1);
+    image(video, -canvas.width, 0, canvas.width, canvas.height);
+    pop();
     video.loadPixels();
     var positions = tracker.getCurrentPosition();
 
@@ -193,29 +196,6 @@ function draw() {
     //Prevents running the loop before prevFrame is defined as the loop uses prevFrame's pixels
     if(typeof prevFrame !== 'undefined'){
       prevFrame.loadPixels();
-
-      var len = prevFrame.pixels.length;
-      console.log(frameCount);
-
-      var temp = createImage(prevFrame.width, prevFrame.height);
-      temp.loadPixels();
-
-      for(var index = 0; index < len; index += 4){
-
-        var x = Math.ceil( (index % (prevFrame.width * 4)) / 4 );
-
-        var y = Math.floor( index / (prevFrame.width * 4) );
-
-        var newX = map(x, 0, prevFrame.width, prevFrame.width, 0);
-        // var newY = map(y, 0, prevFrame.height, prevFrame.height, 0);
-
-        var newIndex = parseInt( (newX + (y * prevFrame.width)) * 4);
-
-        temp.pixels[newIndex] = prevFrame.pixels[index];
-        temp.pixels[newIndex + 1] = prevFrame.pixels[index + 1];
-        temp.pixels[newIndex + 2] = prevFrame.pixels[index + 2];
-        temp.pixels[newIndex + 3] = prevFrame.pixels[index + 3];
-      }
 
       for(i=0; i < currFrame.width; i++){
         for(j=0; j < currFrame.height; j++){
