@@ -3,8 +3,11 @@
 
 var stageSetting = 1;
 var score = 0;
-var oldFrameCount = 999909;
+var oldFrameCount = 0;
+var oldFrameCount2 = 0;
 var stop = false;
+var checkbox;
+var checkboxValue = false;
 
 var startButton = {
   x : 0,
@@ -52,12 +55,20 @@ function setup() {
   startButton.x = canvas.width/2;
   startButton.y = canvas.height/2;
 
-  video = createCapture(VIDEO);
-  video.hide();
+
   grid = new Grid(canvas.width, canvas.width);
   tracker = new clm.tracker();
-  tracker.init(pModel);
-  tracker.start(video.elt);
+
+  video = createCapture(VIDEO, function(){
+    tracker.init(pModel);
+    tracker.start(video.elt);
+    // var canv = document.getElementById("defaultCanvas0");
+    // tracker.start(canv);
+  });
+  video.hide();
+
+  // tracker.init(pModel);
+  // tracker.start(video.elt);
 
   navigator.getMedia = ( navigator.getUserMedia ||
                        navigator.webkitGetUserMedia ||
@@ -71,8 +82,11 @@ function setup() {
     vidOn = false;
     console.log(vidOn);
   });
-}
 
+  checkbox = createCheckbox("Turn Outlines On", false);
+  checkbox.changed(switchVectors);
+}
+var newpos = [];
 function draw() {
 
   if(stageSetting == 1){
@@ -99,63 +113,80 @@ function draw() {
       stop = true;
     }
 
-    if(vidOn == true && frameCount - oldFrameCount == 600){
-        console.log("ON!");
-        tracker.init(pModel);
-        tracker.start(video.elt);
-    }
+    // if(vidOn == true && frameCount - oldFrameCount == 600){
+    //     console.log("ON!");
+    //     tracker.init(pModel);
+    //     // tracker.start(video.elt);
+    //     var canv = document.getElementById("defaultCanvas0");
+    //     tracker.start(canv);
+    // }
 
     if(score>500){
       stageSetting=3
     }
 
     background(255);
-
     push();
-    scale(-1,1);
-    image(video, -canvas.width, 0, canvas.width, canvas.height);
+      scale(-1,1);
+      image(video, -canvas.width, 0, canvas.width, canvas.height);
     pop();
     video.loadPixels();
     var positions = tracker.getCurrentPosition();
 
     noFill();
     stroke(255);
+    newpos = [];
+    for(var i=0; i<positions.length; i++){
+      newpos.push([ map(positions[i][0], 0, video.width, video.width, 0), positions[i][1]]);
+    }
+
+    if(checkboxValue == false){
+      noStroke()
+    }
     beginShape();
     for (var i=0; i<positions.length; i++) {
-      vertex(positions[i][0], positions[i][1]);
+      vertex(newpos[i][0], newpos[i][1]);
     }
     endShape();
+
 
     noStroke();
     for (var i=0; i<positions.length; i++) {
       fill(map(i, 0, positions.length, 0, 360), 50, 100);
-      // ellipse(positions[i][0], positions[i][1], 4, 4);
-      // text(i, positions[i][0], positions[i][1]);
-      text("22", positions[22][0], positions[22][1]);
-      text("18", positions[18][0], positions[18][1]);
+      if(checkboxValue == true){
+        // ellipse(positions[i][0], positions[i][1], 4, 4);
+        // text(i, positions[i][0], positions[i][1]);
+        text("22", newpos[22][0], newpos[22][1]);
+        text("18", newpos[18][0], newpos[18][1]);
+      }
     }
 
     if(positions.length > 0) {
-      var mouthLeft = createVector(positions[44][0], positions[44][1]);
-      var mouthRight = createVector(positions[50][0], positions[50][1]);
+      var mouthLeft = createVector(newpos[44][0], newpos[44][1]);
+      var mouthRight = createVector(newpos[50][0], newpos[50][1]);
       var smile = mouthLeft.dist(mouthRight);
       // rect(20, 20, smile * 3, 20);
-      }
+    }
 
-      if (positions[18]) {
+      if (newpos[18]) {
         //console.log("X: "+positions[18][0]);
         //console.log("Y: "+positions[18][1]);
-        facePoint.x = positions[18][0];
-        facePoint.y = positions[18][1];
+        facePoint.x = newpos[18][0];
+        facePoint.y = newpos[18][1];
       }
 
       //facePoint = positions[18];
       //ellipse(positions[18][0], height/2, 10,10);
 
     if(counter == 0 || ufoArray.length == 0){
-      for(var i=0; i<5; i++){
-        sizeRange = ufoSize * random(0.8, 1.5);
-        ufoArray.push(drawUfo(random(0,canvas.width), random(0, canvas.height - 30), sizeRange*1.34, sizeRange));
+      if(counter == 0){
+        oldFrameCount2 = frameCount;
+      }
+      if(frameCount - oldFrameCount2 == 10){
+        for(var i=0; i<5; i++){
+          sizeRange = ufoSize * random(0.8, 1.5);
+          ufoArray.push(drawUfo(random(0,canvas.width), random(0, canvas.height - 30), sizeRange*1.34, sizeRange));
+        }
       }
       counter +=1;
     }
@@ -175,8 +206,11 @@ function draw() {
         ufoArray[i].y < facePoint.y +50)
       {
         console.log("HIT");
-        if(score>0){
+        if(score>10){
           score -=10;
+        }
+        else{
+          score -= score;
         }
       }
     }
@@ -190,7 +224,7 @@ function draw() {
     currFrame.loadPixels();
 
     outFrame = createImage(w, h);
-    outFrame.copy(video, 0, 0, video.width, video.height, 0, 0, w, h);
+    outFrame.copy(video, 0, 0, video.width, video.height, 0, 0, -w, h);
     outFrame.loadPixels();
 
     //Prevents running the loop before prevFrame is defined as the loop uses prevFrame's pixels
@@ -203,13 +237,18 @@ function draw() {
           //this calculates the position of the red component
           var index = (i + (j*currFrame.width))*4;
 
-          var r = currFrame.pixels[index];
-          var g = currFrame.pixels[index + 1];
-          var b = currFrame.pixels[index + 2];
-          var a = currFrame.pixels[index + 3];
+          var newX = map(i, 0, currFrame.width, currFrame.width, 0);
+          // var newY = map(y, 0, cat.height, cat.height, 0);
+
+          var newIndex = parseInt( (newX + (j * currFrame.width)) * 4);
+
+          var r = currFrame.pixels[newIndex];
+          var g = currFrame.pixels[newIndex + 1];
+          var b = currFrame.pixels[newIndex + 2];
+          var a = currFrame.pixels[newIndex + 3];
 
           //red value in the prevFrame image
-          var r2 = prevFrame.pixels[index];
+          var r2 = prevFrame.pixels[newIndex];
 
           //distance calculation between the red value in the currFrame and the prevFrame
           //this is then used to detect movement
@@ -237,7 +276,8 @@ function draw() {
 
     fill(0);
     textSize(20);
-    text("Score: " + score, 100, 15)
+    textAlign(LEFT);
+    text("Score: " + score, 0, 15);
   }
 
   if(stageSetting == 3){
@@ -298,8 +338,11 @@ function moveUfos(){
     angle = atan2(facePoint.y - ufoArray[i].y, facePoint.x - ufoArray[i].x);
     ufoArray[i].x += cos(angle) * ufoSpeed;
     ufoArray[i].y += sin(angle) * ufoSpeed;
-    fill(0);
-    ellipse(facePoint.x, facePoint.y, 50, 50);
+    noFill();
+    if(checkboxValue == true){
+      fill(0);
+    }
+    ellipse(facePoint.x +25, facePoint.y +25, 50, 50);
   }
 }
 
@@ -390,3 +433,13 @@ this.draw = function(){
   pop();
 }
 };
+
+function switchVectors(){
+  if (this.checked()) {
+    console.log("Checked");
+    checkboxValue = true;
+  } else {
+    console.log("Unchecked");
+    checkboxValue = false;
+  }
+}
