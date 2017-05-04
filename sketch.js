@@ -197,6 +197,19 @@ function draw() {
       for(i=0; i < currFrame.width; i++){
         for(j=0; j < currFrame.height; j++){
 
+          var x = Math.ceil( (index % (cat.width * 4)) / 4 );
+
+          var y = Math.floor( index / (cat.width * 4) );
+          var newX = map(x, 0, cat.width, cat.width, 0);
+          // var newY = map(y, 0, cat.height, cat.height, 0);
+
+          var newIndex = parseInt( (newX + (y * cat.width)) * 4);
+
+          currFrame.pixels[newIndex] = outFrame.pixels[index];
+          currFrame.pixels[newIndex + 1] = outFrame.pixels[index + 1];
+          currFrame.pixels[newIndex + 2] = outFrame.pixels[index + 2];
+          currFrame.pixels[newIndex + 3] = outFrame.pixels[index + 3];
+
           //this calculates the position of the red component
           var index = (i + (j*currFrame.width))*4;
 
@@ -301,7 +314,7 @@ function moveUfos(){
 }
 
 
-//Most of this function was taught in an AV computing class, I modified it to suit my needs.
+//Most of this function was from an AV computing class lesson, I modified it to suit my needs.
 var Grid = function(_w, _h){
 this.outFrame = 0;
 this.noteWidth = 40;
