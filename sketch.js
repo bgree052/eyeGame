@@ -44,6 +44,7 @@ var startPos = [];  //array of x axis start positions of ufos
 
 function preload() {
   ufo = loadImage("assets/ufo.png");
+  alienB = loadImage("assets/retro_alien2.jpg")
 }
 
 function setup() {
@@ -91,11 +92,16 @@ function draw() {
 
   if(stageSetting == 1){
     background(255);
-    textSize(30);
+    image(alienB, 0, 0, 640, 480);
+    textSize(40);
     fill(0);
     textStyle(BOLD);
     textAlign(CENTER);
-    text("INVADERS OF YOUR BRAIN", canvas.width/2, canvas.height/4);
+    text("INVADERS OF YOUR BRAIN", canvas.width/2, canvas.height/4 -20);
+    textSize(20);
+    textStyle(NORMAL);
+    text("Knock away the Alien invaders before they can get to", canvas.width/2, canvas.height/4 +30);
+    text("the centre of your face!", canvas.width/2, canvas.height/4 +55);
 
     fill(startButton.fill);
     rectMode(CENTER);
