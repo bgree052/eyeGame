@@ -203,7 +203,7 @@ function draw() {
           var newX = map(x, 0, cat.width, cat.width, 0);
           // var newY = map(y, 0, cat.height, cat.height, 0);
 
-          var newIndex = parseInt( (newX + (y * cat.width)) * 4);
+          var newIndex = parseInt( (newX + (y * currFrame.width)) * 4);
 
           outFrame.pixels[newIndex] = currFrame.pixels[index];
           outFrame.pixels[newIndex + 1] = currFrame.pixels[index + 1];
