@@ -190,25 +190,38 @@ function draw() {
     outFrame.copy(video, 0, 0, video.width, video.height, 0, 0, w, h);
     outFrame.loadPixels();
 
+    var len = currFrame.pixels.length;
+    console.log(frameCount);
+
+    var temp = createImage(currFrame.width, currFrame.height);
+    temp.loadPixels();
+
+    for(var index = 0; index < len; index += 4){
+
+      var x = Math.ceil( (index % (currFrame.width * 4)) / 4 );
+
+      var y = Math.floor( index / (currFrame.width * 4) );
+
+      var newX = map(x, 0, currFrame.width, currFrame.width, 0);
+      // var newY = map(y, 0, cat.height, cat.height, 0);
+
+      var newIndex = parseInt( (newX + (y * currFrame.width)) * 4);
+
+      temp.pixels[newIndex] = currFrame.pixels[index];
+      temp.pixels[newIndex + 1] = currFrame.pixels[index + 1];
+      temp.pixels[newIndex + 2] = currFrame.pixels[index + 2];
+      temp.pixels[newIndex + 3] = currFrame.pixels[index + 3];
+    }
+
+    temp.updatePixels();
+    prevFrame=temp;
+    
     //Prevents running the loop before prevFrame is defined as the loop uses prevFrame's pixels
     if(typeof prevFrame !== 'undefined'){
       prevFrame.loadPixels();
 
       for(i=0; i < currFrame.width; i++){
         for(j=0; j < currFrame.height; j++){
-
-          var x = Math.ceil( (index % (cat.width * 4)) / 4 );
-
-          var y = Math.floor( index / (cat.width * 4) );
-          var newX = map(x, 0, cat.width, cat.width, 0);
-          // var newY = map(y, 0, cat.height, cat.height, 0);
-
-          var newIndex = parseInt( (newX + (y * currFrame.width)) * 4);
-
-          outFrame.pixels[newIndex] = currFrame.pixels[index];
-          outFrame.pixels[newIndex + 1] = currFrame.pixels[index + 1];
-          outFrame.pixels[newIndex + 2] = currFrame.pixels[index + 2];
-          outFrame.pixels[newIndex + 3] = currFrame.pixels[index + 3];
 
           //this calculates the position of the red component
           var index = (i + (j*currFrame.width))*4;
