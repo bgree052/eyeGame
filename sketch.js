@@ -205,10 +205,10 @@ function draw() {
 
           var newIndex = parseInt( (newX + (y * cat.width)) * 4);
 
-          currFrame.pixels[newIndex] = outFrame.pixels[index];
-          currFrame.pixels[newIndex + 1] = outFrame.pixels[index + 1];
-          currFrame.pixels[newIndex + 2] = outFrame.pixels[index + 2];
-          currFrame.pixels[newIndex + 3] = outFrame.pixels[index + 3];
+          outFrame.pixels[newIndex] = currFrame.pixels[index];
+          outFrame.pixels[newIndex + 1] = currFrame.pixels[index + 1];
+          outFrame.pixels[newIndex + 2] = currFrame.pixels[index + 2];
+          outFrame.pixels[newIndex + 3] = currFrame.pixels[index + 3];
 
           //this calculates the position of the red component
           var index = (i + (j*currFrame.width))*4;
